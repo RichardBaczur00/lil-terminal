@@ -1,6 +1,6 @@
 CC = g++
 TARGET = term 
-SRC = main.cpp
+SRC = main.cpp command_utils.cpp
      
 CFLAGS =
 FLAGS =
