@@ -1,13 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
 #include "command_utils.h"
+#include "history.h"
 
 #define BUFFER_SIZE 128
 #define MAX_SPLITS 30
@@ -34,21 +26,26 @@ int main() {
         fgets(line, BUFFER_SIZE - 1, stdin);
         if (strcmp(line, "quit\n")) {
             nl = strdup(line);
-            part = strtok(nl, ";\n");
-            while (part != NULL) {
+            part = line;
+            printf("%s", part);
+            if (part != NULL) {
                 char *c_restore = (char*) malloc(sizeof(char) * BUFFER_SIZE);
                 int fd[2];
                 cmd = strdup(part);
                 if (pipe(fd) < 0) {
                     //error pipe
+                    printf("Error: Pipe");
                     //TODO: Set status
                 }
                 if ((child=fork()) < 0) {
                     //error fork
+                    printf("Error: fork");
                     //TODO: Set status
                 }
+
                 if (child == 0) {
                     result = exec_simple(cmd);
+                    printf("%d", result);
                     write(fd[1], restore, sizeof(char) * BUFFER_SIZE);
                     exit(1);
                 } else {
@@ -64,7 +61,6 @@ int main() {
                 close(fd[0]);
                 free(c_restore);
             }
-            part = strtok(NULL, ";\n");
             free(nl);
             free(cmd);
         }

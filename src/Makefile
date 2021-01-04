@@ -1,10 +1,10 @@
 CC = g++
 TARGET = term 
-SRC = main.cpp command_utils.cpp
+SRC = main.cpp command_utils.cpp ls.cpp cd.cpp cp.cpp dirname.cpp
      
 CFLAGS =
 FLAGS =
-LIBS =  -lpthread
+LIBS =  -lpthread -lreadline
 
 
 OBJ = $(SRC:%.cpp=%.o)
