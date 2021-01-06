@@ -1,6 +1,6 @@
 CC = g++
 TARGET = term 
-SRC = main.cpp command_utils.cpp ls.cpp cd.cpp cp.cpp dirname.cpp
+SRC = main.cpp command_utils.cpp ls.cpp cd.cpp cp.cpp dirname.cpp mv.cpp
      
 CFLAGS =
 FLAGS =
