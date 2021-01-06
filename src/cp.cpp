@@ -2,8 +2,8 @@
 
 #define BUFFER_SIZE 4096
 
-bool flagI=0, flagR=0, flagT=0, flagV=0, noCpFlag=1;
 int cp(int argc, char *argv[]) {
+    bool flagI=0, flagR=0, flagT=0, flagV=0, noCpFlag=1;
     int fd[2];
 
     if (strcmp(argv[1], "-h") == 0) {
@@ -19,27 +19,31 @@ int cp(int argc, char *argv[]) {
         if (strcmp(argv[i], "-v") == 0) { flagV = true; noCpFlag = false; }
     }
 
-    //open file descriptors
-    fd[0] = open(argv[argc - 2], O_RDONLY);
-    fd[1] = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-
-    //check file descriptors
-    if (fd[0] == -1) {
-        printf("Error opening file %s (source)\n", argv[argc - 2]);
-        return ERROR_OPENING_SOURCE;
-    }
-
-    if (fd[1] == -1) {
-        printf("Error opening file %s (destination)\n", argv[argc - 1]);
-        return ERROR_OPENING_DESTINATION;
-    }
 
     //check flags and execute accordingly
-    if (noCpFlag) {
+        if (noCpFlag) {
+        //open file descriptors
+        fd[0] = open(argv[argc - 2], O_RDONLY);
+        fd[1] = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+
+        //check file descriptors
+        if (fd[0] == -1) {
+            printf("Error opening file %s (source)\n", argv[argc - 2]);
+            return ERROR_OPENING_SOURCE;
+        }
+
+        if (fd[1] == -1) {
+            printf("Error opening file %s (destination)\n", argv[argc - 1]);
+            return ERROR_OPENING_DESTINATION;
+        }
+
+
+        printf("copying!");
         // copy and get operation status
         int status = simpleCopy(fd[0], fd[1]);
         
         if (status == 0) {
+            printf("Copied successfully!\n");
             return 0;
         } else {
             if (status == ERROR_WRITING_TO_DEST) {
@@ -54,6 +58,21 @@ int cp(int argc, char *argv[]) {
         }
         
     } else if (flagI) {
+            //open file descriptors
+        fd[0] = open(argv[argc - 2], O_RDONLY);
+        fd[1] = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+
+        //check file descriptors
+        if (fd[0] == -1) {
+            printf("Error opening file %s (source)\n", argv[argc - 2]);
+            return ERROR_OPENING_SOURCE;
+        }
+
+        if (fd[1] == -1) {
+            printf("Error opening file %s (destination)\n", argv[argc - 1]);
+            return ERROR_OPENING_DESTINATION;
+        }
+
         //check if the destination file exists
         if (access(argv[argc - 1], F_OK) == 0) {
             //file exists, prompt user
@@ -73,7 +92,7 @@ int cp(int argc, char *argv[]) {
         //if the flag is set and the source is not a directory, stop execution
         if (isDirectory(argv[argc - 2])) {
             //if it is create the destination directory...
-            mkdir(argv[argc - 1], 0777);
+            //mkdir(argv[argc - 1], 0777);
             //... and start copying
             recursiveCopy(argv[argc - 2], argv[argc - 1]);
         } else {
@@ -89,6 +108,7 @@ int simpleCopy(int source, int destination) {
     //write from source to buffer and from buffer to destination
     while ((nbread = read(source, buffer, BUFFER_SIZE)) > 0) {
         if (write(destination, buffer, nbread) != nbread) {
+            printf("Problem writing to dest...");
             return ERROR_WRITING_TO_DEST;
         }
     }
@@ -125,11 +145,14 @@ int recursiveCopy(const char* source, const char* destination) {
     DIR *currentDirectory = opendir(source);
     struct dirent *de;
     int result = 0;
+    int dir_creation_status;
     char *path;
     struct stat *buffer2 = (struct stat*)malloc(sizeof(struct stat));
     lstat(destination, buffer2);
     if (access(destination, F_OK))
-        if (mkdir(destination, S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP|S_IXGRP) < 0) {
+        dir_creation_status = mkdir(destination, 0777);
+        if (dir_creation_status < 0) {
+            printf("Err code: %d\n", dir_creation_status);
             printf("Cannot create destination folder\n");
             closedir(currentDirectory);
             free(buffer2);
@@ -160,7 +183,7 @@ int recursiveCopy(const char* source, const char* destination) {
                         free(dest2);
                         return CANNOT_CREATE_DIRECTORY;
                     }
-                    printf("Created folder %s", dest2);
+                    printf("Created folder %s\n", dest2);
                     result = recursiveCopy(path, dest2);
 
                     free(dest2);
@@ -170,7 +193,7 @@ int recursiveCopy(const char* source, const char* destination) {
                 char *dest2 = (char*)malloc(sizeof(char) * strlen(destination) + strlen(path) - strlen(source) + 2);
                 strcpy(dest2, destination);
                 strcat(dest2, path + strlen(source));
-                printf("Created file %s", dest2);
+                printf("Created file %s\n", dest2);
 
                 int fd[2];
 
@@ -178,7 +201,7 @@ int recursiveCopy(const char* source, const char* destination) {
                 fd[1] = open(dest2, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 
                 result = simpleCopy(fd[0], fd[1]);
-                printf("Result for %s is %d", dest2, result);
+                printf("Result for %s is %d\n", dest2, result);
                 free(dest2);
             }
 
