@@ -12,6 +12,7 @@
 #include "cd.h"
 #include "cp.h"
 #include "dirname.h"
+#include "mv.h"
 
 int exec_command(int, char *argv[]);
 int parse_command(char*);

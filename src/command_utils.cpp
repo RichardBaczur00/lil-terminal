@@ -288,6 +288,7 @@ int exec_command(int argc, char* argv[]) {
     if (strcmp(cmd, "ls") == 0) status = ls(argc, argv);
     else if (strcmp(cmd, "cd") == 0) status = cd(argc, argv);
     else if (strcmp(cmd, "cp") == 0) status = cp(argc, argv);
+    else if (strcmp(cmd, "mv") == 0) status = mv(argc, argv);
     else if (strcmp(cmd, "dirname") == 0) status = dirname(argc, argv);
     else {
         printf("Command not found");
