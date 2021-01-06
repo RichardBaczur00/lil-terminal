@@ -2,8 +2,9 @@
 
 #define BUFFER_SIZE 4096
 
+bool flagV=0;
 int cp(int argc, char *argv[]) {
-    bool flagI=0, flagR=0, flagT=0, flagV=0, noCpFlag=1;
+    bool flagI=0, flagR=0, flagT=0, noCpFlag=1;
     int fd[2];
 
     if (strcmp(argv[1], "-h") == 0) {
@@ -183,7 +184,8 @@ int recursiveCopy(const char* source, const char* destination) {
                         free(dest2);
                         return CANNOT_CREATE_DIRECTORY;
                     }
-                    printf("Created folder %s\n", dest2);
+                    if (flagV)
+                        printf("Created folder %s\n", dest2);
                     result = recursiveCopy(path, dest2);
 
                     free(dest2);
@@ -193,7 +195,8 @@ int recursiveCopy(const char* source, const char* destination) {
                 char *dest2 = (char*)malloc(sizeof(char) * strlen(destination) + strlen(path) - strlen(source) + 2);
                 strcpy(dest2, destination);
                 strcat(dest2, path + strlen(source));
-                printf("Created file %s\n", dest2);
+                if (flagV)
+                    printf("Created file %s\n", dest2);
 
                 int fd[2];
 
@@ -201,7 +204,8 @@ int recursiveCopy(const char* source, const char* destination) {
                 fd[1] = open(dest2, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 
                 result = simpleCopy(fd[0], fd[1]);
-                printf("Result for %s is %d\n", dest2, result);
+                if (flagV)
+                    printf("Result for %s is %d\n", dest2, result);
                 free(dest2);
             }
 
